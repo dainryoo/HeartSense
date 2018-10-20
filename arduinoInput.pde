@@ -23,15 +23,15 @@ void serialEvent(Serial port) {
     }
     if (data.charAt(0) == 'B') { // leading 'B' for BPM data
       data = data.substring(1); // cut off the leading 'B'
-      BPM = int(data); // convert String to int
+      currBPM = int(data); // convert String to int
     }
     if (data.charAt(0) == 'Q') { // leading 'Q' means IBI data
       data = data.substring(1); // cut off the leading 'Q'
-      IBI = int(data); // convert String to int
+      currIBI = int(data); // convert String to int
     }
     if (data.charAt(0) == 'G') { // leading 'G' means GSR data
       data = data.substring(1); // cut off the leading 'G'
-      GSR = int(data); // convert String to int
+      currGSR = int(data); // convert String to int
 
       // equation from http://wiki.seeedstudio.com/Grove-GSR_Sensor/
       // Human Resistance = ((1024+2*Serial_Port_Reading)*10000)/(512-Serial_Port_Reading)
