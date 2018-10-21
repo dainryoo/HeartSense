@@ -105,7 +105,7 @@ void drawRing(Ring r, int index) {
 
     // Petal color depends on GSR
     beginShape();
-    color petalColor = c[0]; // TODO!!!
+    color petalColor = getColor(gsr); // TODO!!!
     stroke(petalColor);
     strokeWeight(2);
     bezier(x1, y1, control1X, control1Y, control2X, control2Y, x2, y2);
