@@ -34,9 +34,12 @@ void setup() {
   File f = new File(sketchPath("data"));
   String[] videoList = f.list();
 
-  String videoName = videoList[(int) random(videoList.length)];
-  println(videoName);
-
+  if (videoList.length < 1) { // if no videos
+    System.out.println("NO VIDEOS TO CHOOSE FROM! Add a video to the data folder");
+  } else {
+    String videoName = videoList[(int) random(videoList.length)];
+    println(videoName);
+  }
 }
 
 void draw() {
