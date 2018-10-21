@@ -4,12 +4,18 @@ Serial port;  // Create object from Serial class
 int Sensor;   // Pulse sensor data from Arduino
 int lf = 10;  // ASCII linefeed
 
-void setupPort() {
-  String portName = Serial.list()[0]; // Port usually seems to be 0, but maybe try 1 or 2 or etc. if it doesn't work?
-  port = new Serial(this, portName, 115200);
-  // Throw out the first reading, in case we started reading in the middle of a string from the sender.
-  port.clear();
-  port.bufferUntil(lf);
+boolean setupPort() {
+  try {
+    String portName = Serial.list()[0]; // Port usually seems to be 0, but maybe try 1 or 2 or etc. if it doesn't work?
+    port = new Serial(this, portName, 115200);
+    // Throw out the first reading, in case we started reading in the middle of a string from the sender.
+    port.clear();
+    port.bufferUntil(lf);
+    return true;
+  } 
+  catch (Exception e) {
+    return false;
+  }
 }
 
 void serialEvent(Serial port) {

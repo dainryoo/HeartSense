@@ -1,3 +1,6 @@
+import java.io.*;
+import processing.video.*;
+
 int currIBI;      // Time between heartbeats from Arduino
 int currBPM;      // Heart Rate value from Arduino
 int currGSR;      // GSR value from Arduino
@@ -24,34 +27,27 @@ ArrayList<Ring> rings = new ArrayList<Ring>();
 void setup() {
   size(640, 640);
   frameRate(30);
-  setupPort();
+  if (!setupPort()) { // something went wrong with Arduino
+    System.out.println("WARNING: Arduino Error");
+  }
+
+  File f = new File(sketchPath("data"));
+  String[] videoList = f.list();
+
+  String videoName = videoList[(int) random(videoList.length)];
+  println(videoName);
+
 }
 
 void draw() {
-  // Every 300 frames, until frame 9000, create a new ring and add it to the rings ArrayList
-  if (frameCount%30 == 0 && frameCount < 9000) {
-    // Limit IBI to [100, 1200] (not really sure if this is a good range)
-    currIBI = max(currIBI, 100);
-    currIBI = min(currIBI, 1200);
-
-    // Limit BPM to [60, 150]
-    currBPM = max(currBPM, 60);
-    currBPM = min(currBPM, 150);
-
-    // Limit GSR to [0, 1023]
-    currGSR = max(currGSR, 0);
-    currGSR = min(currGSR, 1023);
-
-    // Create an instance of a ring to represent the user's data at this time 
-    Ring newRing = new Ring(currIBI, currBPM, currGSR, frameCount);
-    rings.add(newRing);
-    
-    System.out.println("IBI: " + currIBI + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
+  
+  // Every 15 frames, until frame 9000, create a new ring and add it to the rings ArrayList
+  if (frameCount%15 == 0 && frameCount < 9000) {
+    addNewRing();
   }
 
   // Draw white background
   background(255);
-
   // Draw each ring in the rings ArrayList
   for (int i = rings.size()-1; i >= 0; i--) {
     // Get the current ring
@@ -61,13 +57,34 @@ void draw() {
   }
 }
 
+
+void addNewRing() {
+  // Limit IBI to [100, 1200] (not really sure if this is a good range)
+  currIBI = max(currIBI, 100);
+  currIBI = min(currIBI, 1200);
+
+  // Limit BPM to [60, 150]
+  currBPM = max(currBPM, 60);
+  currBPM = min(currBPM, 150);
+
+  // Limit GSR to [0, 1023]
+  currGSR = max(currGSR, 0);
+  currGSR = min(currGSR, 1023);
+
+  // Create an instance of a ring to represent the user's data at this time 
+  Ring newRing = new Ring(currIBI, currBPM, currGSR, frameCount);
+  rings.add(newRing);
+
+  //System.out.println("IBI: " + currIBI + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
+}
+
 void drawRing(Ring r, int index) {
   int ibi = r.ibi;
   int bpm = r.bpm;
   int gsr = r.gsr;
 
   // Circular base of the ring has radius based on index (the more recent the ring, the greater its index in the ArrayList, and the greater its radius)
-  float radius = index*8.0; // 8 is arbitrary
+  float radius = index*6.0; // 6 is arbitrary
   float cx = width/2.0;  // center of circle
   float cy = height/2.0; // center of circle
   // ellipse(cx, cy, radius, radius);
@@ -75,7 +92,7 @@ void drawRing(Ring r, int index) {
   // Frequency of "petals" along the circumference depends on bpm
   // The x1,y1, x2,y2 coordinates represent the ends of the bezier curves that make up the ring
   // So the more dots, the more bezier curves on this ring
-  int numPetals = (int) (bpm/8); // 8 is arbitrary
+  int numPetals = (int) (bpm/6); // 6 is arbitrary
 
   for (int i = 0; i < numPetals; i++) {
     float angle = (i * TWO_PI / numPetals); 
@@ -104,7 +121,7 @@ void drawRing(Ring r, int index) {
     // Petal color depends on GSR
     beginShape();
     //noFill();
-    fill(color(255, 255, 255), 190);
+    fill(color(255, 255, 255), 255*0.65);
     color petalColor = getColor(gsr); // TODO!!!
     stroke(petalColor);
     strokeWeight(1);
@@ -114,12 +131,12 @@ void drawRing(Ring r, int index) {
     // Uncomment to view control points for bezier curves
     /*
     noFill();
-    stroke(color(100, 140, 200));
-    ellipse(x1, y1, 2, 2);
-    ellipse(x2, y2, 2, 2);
-    stroke(color(200, 100, 100));
-    ellipse(control1X, control1Y, 2, 2);
-    ellipse(control2X, control2Y, 2, 2);
-    */
+     stroke(color(100, 140, 200));
+     ellipse(x1, y1, 2, 2);
+     ellipse(x2, y2, 2, 2);
+     stroke(color(200, 100, 100));
+     ellipse(control1X, control1Y, 2, 2);
+     ellipse(control2X, control2Y, 2, 2);
+     */
   }
 }
