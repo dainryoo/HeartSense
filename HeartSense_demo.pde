@@ -29,7 +29,7 @@ void setup() {
 
 void draw() {
   // Every 300 frames, until frame 9000, create a new ring and add it to the rings ArrayList
-  if (frameCount%100 == 0 && frameCount < 9000) {
+  if (frameCount%30 == 0 && frameCount < 9000) {
     // Limit IBI to [100, 1200] (not really sure if this is a good range)
     currIBI = max(currIBI, 100);
     currIBI = min(currIBI, 1200);
@@ -67,26 +67,27 @@ void drawRing(Ring r, int index) {
   int gsr = r.gsr;
 
   // Circular base of the ring has radius based on index (the more recent the ring, the greater its index in the ArrayList, and the greater its radius)
-  float radius = index*20.0; // 20 is arbitrary
+  float radius = index*8.0; // 8 is arbitrary
   float cx = width/2.0;  // center of circle
   float cy = height/2.0; // center of circle
   // ellipse(cx, cy, radius, radius);
 
-  // Frequency of "dots" along the circumference depends on bpm
-  // Dots represent the ends of the bezier curves that make up the ring
+  // Frequency of "petals" along the circumference depends on bpm
+  // The x1,y1, x2,y2 coordinates represent the ends of the bezier curves that make up the ring
   // So the more dots, the more bezier curves on this ring
-  int numDots = (int) (bpm/8); // 8 is arbitrary
+  int numPetals = (int) (bpm/8); // 8 is arbitrary
 
-  for (int i = 1; i <= numDots; i++) {
-    float angle = i * TWO_PI / numDots;
+  for (int i = 0; i < numPetals; i++) {
+    float angle = (i * TWO_PI / numPetals); 
+    // index*0.1 is purely for aesthetics: adds an extra bit to the angle so that all the petals don't all start at the same angle 
     float x1 = cx + cos(angle) * radius; // one end of curve
     float y1 = cy + sin(angle) * radius; 
 
     float nextAngle;
-    if (i == numDots) {
-      nextAngle = TWO_PI / numDots;
+    if (i == numPetals) {
+      nextAngle = TWO_PI / numPetals;
     } else {
-      nextAngle = (i+1) * TWO_PI / numDots;
+      nextAngle = (i+1) * TWO_PI / numPetals;
     }
     float x2 = cx + cos(nextAngle) * radius; // other end of curve
     float y2 = cy + sin(nextAngle) * radius;
@@ -94,24 +95,23 @@ void drawRing(Ring r, int index) {
     // Petal height depends on IBI
     // 30-100 petal height looks pretty good (arbitrary once again)
     // IBI seems to be around 100-1200
-    float petalHeight = ibi/10.0;
+    float petalHeight = ibi/6.0; // 6 is arbitrary
     float control1X = cx + cos(angle) * (radius+petalHeight); // curve control point
     float control1Y = cy + sin(angle) * (radius+petalHeight);
     float control2X = cx + cos(nextAngle) * (radius+petalHeight); // curve control point
     float control2Y = cy + sin(nextAngle) * (radius+petalHeight); 
 
-
-
-
     // Petal color depends on GSR
     beginShape();
+    //noFill();
+    fill(color(255, 255, 255), 190);
     color petalColor = getColor(gsr); // TODO!!!
     stroke(petalColor);
-    strokeWeight(2);
+    strokeWeight(1);
     bezier(x1, y1, control1X, control1Y, control2X, control2Y, x2, y2);
     endShape();
 
-    // Uncomment to view control points for bezier
+    // Uncomment to view control points for bezier curves
     /*
     noFill();
     stroke(color(100, 140, 200));
