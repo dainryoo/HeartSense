@@ -54,6 +54,8 @@ void loop() {
     // ... write the per-beat information to Serial.
     pulseSensor.outputBeat();
   }
+
+  delay(100); // added delay because Serial output of pulse and GSR might be affecting each other?
   int gsrSignal = analogRead(GSR_INPUT);
   Serial.println('G' + String(gsrSignal)); // Send to processing in the form of G + the signal
 }

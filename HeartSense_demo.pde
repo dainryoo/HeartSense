@@ -24,6 +24,8 @@ class Ring {
 // Holds rings from earliest -> most recent
 ArrayList<Ring> rings = new ArrayList<Ring>();
 
+Movie video;
+
 void setup() {
   size(640, 640);
   frameRate(30);
@@ -39,6 +41,7 @@ void setup() {
   } else {
     String videoName = videoList[(int) random(videoList.length)];
     println(videoName);
+    video = new Movie(this, videoName);
   }
 }
 
@@ -67,8 +70,6 @@ void addNewRing() {
   currIBI = min(currIBI, 1200);
 
   // Limit BPM to [60, 150]
-  currBPM = max(currBPM, 60);
-  currBPM = min(currBPM, 150);
 
   // Limit GSR to [0, 1023]
   currGSR = max(currGSR, 0);
@@ -78,7 +79,7 @@ void addNewRing() {
   Ring newRing = new Ring(currIBI, currBPM, currGSR, frameCount);
   rings.add(newRing);
 
-  //System.out.println("IBI: " + currIBI + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
+  System.out.println("IBI: " + currIBI + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
 }
 
 void drawRing(Ring r, int index) {
