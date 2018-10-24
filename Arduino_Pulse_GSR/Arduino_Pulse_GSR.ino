@@ -47,6 +47,8 @@ void setup() {
 }
 
 void loop() {
+  
+  
   delay(20); // Wait a bit. Don't output every sample, because our baud rate won't support that much I/O.
   // Write the latest sample to Serial.
   pulseSensor.outputSample();
@@ -54,8 +56,8 @@ void loop() {
     // ... write the per-beat information to Serial.
     pulseSensor.outputBeat();
   }
-
-  delay(100); // added delay because Serial output of pulse and GSR might be affecting each other?
+  
+  delay(100);
   int gsrSignal = analogRead(GSR_INPUT);
-  Serial.println('G' + String(gsrSignal)); // Send to processing in the form of G + the signal
+  Serial.println('G' + String(gsrSignal)); // Send to processing in the form of G + the signalpu
 }
