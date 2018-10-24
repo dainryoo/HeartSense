@@ -92,12 +92,12 @@ void addNewRing() {
   currIBI = max(currIBI, 100);
   currIBI = min(currIBI, 1200);
 
-  // Limit BPM to [60, 150]
+  // Limit BPM to nothing for now
   
 
-  // Limit GSR to [0, 1023]
+  // Limit GSR to [100, ?]
   currGSR = max(currGSR, 100);
-  currGSR = min(currGSR, 292);
+  //currGSR = min(currGSR, 292);
 
   // Create an instance of a ring to represent the user's data at this time 
   Ring newRing = new Ring(currIBI, currBPM, currGSR, frameCount);
