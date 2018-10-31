@@ -1,28 +1,40 @@
 import java.io.*;
 import processing.video.*;
 
-int currIBI;      // Time between heartbeats from Arduino
-int currBPM;      // Heart Rate value from Arduino
-int currGSR;      // GSR value from Arduino
+int currIBI=0;      // Time between heartbeats from Arduino
+int currBPM=0;      // Heart Rate value from Arduino
+int currGSR=0;      // GSR value from Arduino
+int currRPM=0;
 
-int maxNumRings = 60; // 60 looks good, but is arbitrary
+
+int maxNumRings=250; // 60 looks good, but is arbitrary
 int videoLength; // number of frames in the video 
 int videoFrameRate = 30; // frameRate the video plays at
+String videoName = "";
 
 Movie video; // the randomly selected video to play
 VideoPlayer videoPlayer;
 
+ArrayList<Integer> heartRate = new ArrayList<Integer>();
+ArrayList<Integer> GSR = new ArrayList<Integer>();
+
+boolean videoStarted, videoEnded;
+float maxRadius;
+int counter;
+
 class Ring {
-  int ibi; // how much variation there is in your heartbeats within a certain interval (heart irregularity)
+  //int ibi; // how much variation there is in your heartbeats within a certain interval (heart irregularity)
   // factors like stress can lead to increased heart rate and lowered heart rate variability
   // lower HRV associated with pressure, emotional strain, and anxiety
   // 
+  int rpm;
   int bpm;
   int gsr;
   int timeStamp;
 
-  Ring(int interbeat, int heart, int sweat, int time) {
-    ibi = interbeat;
+  Ring(int average_breathing_rate, int heart, int sweat, int time) {
+    //ibi = interbeat;
+    rpm = average_breathing_rate;
     bpm = heart;
     gsr = sweat;
     timeStamp = time;
@@ -30,13 +42,29 @@ class Ring {
 }
 
 // Holds rings from earliest -> most recent
-ArrayList<Ring> rings = new ArrayList<Ring>();
+ArrayList<Ring> rings;
+
+void settings() {
+  size(1000, 1000);
+  maxRadius = width/2;
+}
 
 void setup() {
   if (!setupPort()) { // something went wrong with Arduino
     System.out.println("WARNING: Arduino Error");
   }
 
+  startProcessing();
+}
+
+
+void startProcessing()
+{
+  videoStarted = false;
+  videoEnded = false;
+  rings = new ArrayList<Ring>();
+
+  background(255);
   File f = new File(sketchPath("data"));
   String[] videoList = f.list();
   if (videoList.length < 1) { // if no videos
@@ -45,73 +73,143 @@ void setup() {
     // If for some reason, no videos can play, just let the simulation run for 2000 frames
     videoLength = 2000;
   } else {
-    String videoName = videoList[(int) random(videoList.length)];
-    System.out.println("Now playing " + videoName);
-    video = new Movie(this, videoName) {
-      @Override public void eosEvent() {
-        super.eosEvent();
-        myEoS();
+
+
+
+    while (true)
+    {
+      int randomVideoNumber = (int)random(videoList.length);
+      String[] fileNameSegments = split(videoList[randomVideoNumber], ".");
+      //println(fileNameSegments[1]);
+      //Skip names of hidden files, only consider those file names that end with .mov
+      if (fileNameSegments[1].equals("mov") || fileNameSegments[1].equals("MOV"))
+      {
+        videoName = videoList[randomVideoNumber];
+        break;
       }
-    }; 
+    }
+  }
+
+
+  //String videoName = videoList[(int) random(videoList.length)];
+  
+  System.out.println("Video chosen: " + videoName);
+  video = new Movie(this, videoName) {
+    @Override public void eosEvent() {
+      super.eosEvent();
+      myEoS();
+    }
+  };
+}
+
+void draw() {
+
+  if (currRPM>0 && currBPM>0 && currBPM<160 && !videoStarted)
+  //if (!videoStarted)
+  {
+    videoStarted=true;
     frameRate(videoFrameRate);
     // Pausing the video at the first frame so that we can save duration
     video.play();
     video.jump(0);
     video.pause();
     // multiply length of video (seconds) by frameRate (number of frames per second) to get total number of frames
-    videoLength = (int) video.duration() * videoFrameRate; 
+    videoLength = (int) video.duration() * videoFrameRate;
+    videoPlayer = new VideoPlayer();
+    //videoPlayer.background(video);
+    println(video.duration());
+    //maxNumRings =
   }
-  size(640, 640); 
 
-  videoPlayer = new VideoPlayer();
+  if (videoStarted && !videoEnded)
+  {
+
+    if (video.available()) {
+      video.read();
+    }
+
+    // Every # of frames, until frame #videoLength, create a new ring and add it to the rings ArrayList
+    //if (frameCount%((int)(videoLength/maxNumRings))== 0 && frameCount <= videoLength) {
+    if (video.time()<video.duration())
+    {
+      //println(video.time()-video.duration());
+      if (frameCount%((int)(videoLength/maxNumRings))== 0)
+        addNewRing();
+    } else
+    {
+
+      if (!videoEnded)
+      {
+        println("Press R to restart...");
+        videoEnded = true;
+        saveFrame("Flowers/flower-######-"+videoName+".jpg");
+      }
+    }
+    //}
+
+    // Draw white background
+    background(255);
+    // Draw each ring in the rings ArrayList
+    for (int i = rings.size()-1; i >= 0; i--) {
+      // Get the current ring
+      Ring currRing = rings.get(i);
+      // Draw the current ring
+      drawRing(currRing, i);
+    }
+  }
+
+  if (videoEnded)
+  {
+    if (keyPressed) {
+      if (key == 'R' || key == 'r') {
+        startProcessing();
+      }
+    }
+  }
 }
 
-void draw() {
-  if (video.available()) {
-    video.read();
-  }
-
-  // Every # of frames, until frame #videoLength, create a new ring and add it to the rings ArrayList
-  if (frameCount%((int)(videoLength/maxNumRings))== 0 && frameCount <= videoLength) {
-    addNewRing();
-  }
-
-  // Draw white background
-  background(255);
-  // Draw each ring in the rings ArrayList
-  for (int i = rings.size()-1; i >= 0; i--) {
-    // Get the current ring
-    Ring currRing = rings.get(i);
-    // Draw the current ring
-    drawRing(currRing, i);
-  }
-}
+//void keyPressed()
+//{
+//  if (videoEnded)
+//  {
+//    if (key == CODED) {
+//      if (keyCode == KeyR) {
+//        startProcessing();
+//      }
+//    }
+//  }
+//}
 
 void addNewRing() {
   // Limit IBI to [100, 1200] (not really sure if this is a good range)
-  currIBI = max(currIBI, 100);
-  currIBI = min(currIBI, 1200);
+
+  //println(parseFloat(IBI));
+  //currIBI = max(currIBI, 100);
+  //currIBI = min(currIBI, 1200);
 
   // Limit BPM to nothing for now
-  
+
 
   // Limit GSR to [100, ?]
-  currGSR = max(currGSR, 100);
-  //currGSR = min(currGSR, 292);
+
+  currGSR = max(currGSR, 300);
+  currGSR = min(currGSR, 900);
 
   // Create an instance of a ring to represent the user's data at this time 
-  Ring newRing = new Ring(currIBI, currBPM, currGSR, frameCount);
+  Ring newRing = new Ring(currRPM, currBPM, currGSR, frameCount);
   rings.add(newRing);
-  System.out.println("IBI: " + currIBI + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
+  System.out.println("RPM: " + currRPM + "      - BPM: " + currBPM + "          - GSR: " + currGSR);
 }
 
 void drawRing(Ring r, int index) {
-  int ibi = r.ibi;
+  //int ibi = r.ibi;
+  int rpm = r.rpm;
   int bpm = r.bpm;
   int gsr = r.gsr;
 
   // Circular base of the ring has radius based on index (the more recent the ring, the greater its index in the ArrayList, and the greater its radius)
-  float radius = index*6.0; // 6 is arbitrary
+  //float radius = width*(video.time()/video.duration()); // 6 is arbitrary
+  float radius = index*2;
   float cx = width/2.0;  // center of circle
   float cy = height/2.0; // center of circle
   // ellipse(cx, cy, radius, radius);
@@ -139,7 +237,7 @@ void drawRing(Ring r, int index) {
     // Petal height depends on IBI
     // 30-100 petal height looks pretty good (arbitrary once again)
     // IBI seems to be around 100-1200
-    float petalHeight = ibi/6.0; // 6 is arbitrary
+    float petalHeight = rpm*6; // 6 is arbitrary
     float control1X = cx + cos(angle) * (radius+petalHeight); // curve control point
     float control1Y = cy + sin(angle) * (radius+petalHeight);
     float control2X = cx + cos(nextAngle) * (radius+petalHeight); // curve control point

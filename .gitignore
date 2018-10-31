@@ -1,0 +1,3 @@
+# ignore all the files in data and flowers
+data/*
+flowers/*

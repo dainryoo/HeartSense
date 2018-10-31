@@ -80,9 +80,9 @@ color colors[] =
   color(127.5,0,0)
 };
 
-// map GSR from 261-450 to color (0-63) // TODO
+// map GSR from 261-517 to color (0-63) // TODO
 color getColor(int gsr) {
-  return colors[(int) ((gsr - 261) / 3)];
+  return colors[(int) (((gsr-300) / 10))];
   //return colors[0];
 }
 
