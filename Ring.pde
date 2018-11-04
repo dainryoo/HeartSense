@@ -4,8 +4,8 @@
  * Holds the values for RPM, BPM, and GSR at that point in time
  */
 
-int MAX_PETAL_HEIGHT = 100;  // Height of the tallest petal (arbitrary)
-int MAX_NUM_RINGS = 250;     // Number of rings/layers we want to show up (arbitrary)
+int MAX_PETAL_HEIGHT = 120;  // Height of the tallest petal (arbitrary)
+int MAX_NUM_RINGS = 70;     // Number of rings/layers we want to show up (arbitrary)
 
 class Ring {
   int rpm;
@@ -38,51 +38,41 @@ void drawRing(Ring r, int index) {
   int frame = r.time;
 
   // Circular base of the ring has radius based on index (the more recent the ring, the greater its index in the ArrayList, and the greater its radius)
-  //float radius = width*(video.time()/video.duration()); // 6 is arbitrary
-  float radius = index*10;
+  float radius = width/2.0 * index/MAX_NUM_RINGS;
   float cx = width/2.0;  // center of circle
   float cy = height/2.0; // center of circle
-  // ellipse(cx, cy, radius, radius);
+  float angleOffset = (index*1.0/MAX_NUM_RINGS) * PI; // add so that not all layers have first petal starting at the same angle
+  color petalColor = getColor(gsr);
 
   // Frequency of "petals" along the circumference depends on bpm
   // The x1,y1, x2,y2 coordinates represent the ends of the bezier curves that make up the ring
   // So the more dots, the more bezier curves on this ring
-  int numPetals = 20;
-  //ellipse(cx, cy, radius, radius);
+  int numPetals = (int) bpm/5;
   for (int i = 0; i < numPetals; i++) {
-    float angle = (i * TWO_PI / numPetals) + frame/100; 
-    // index*0.1 is purely for aesthetics: adds an extra bit to the angle so that all the petals don't all start at the same angle 
-    float x1 = cx + cos(angle) * radius; // one end of curve
-    float y1 = cy + sin(angle) * radius; 
+    float angle = (i/ (numPetals/2.0)) * PI + angleOffset;
+    float x1 = cx + (radius * cos(angle)); // x-coord of one end of bezier curve
+    float y1 = cy + (radius * sin(angle)); // y-coord of one end of bezier curve
 
-    float nextAngle;
-    if (i == numPetals) {
-      nextAngle = TWO_PI / numPetals + frame/100;
-    } else {
-      nextAngle = (i+1) * TWO_PI / numPetals + frame/100;
-    }
-    float x2 = cx + cos(nextAngle) * radius; // other end of curve
-    float y2 = cy + sin(nextAngle) * radius;
-
+    float nextAngle = ((i+1)/ (numPetals/2.0)) * PI + angleOffset;
+    float x2 = cx + (radius * cos(nextAngle)); // x-coord of other end of bezier curve
+    float y2 = cy + (radius * sin(nextAngle)); // y-coord of other end of bezier curve
 
     // Petal height depends on RPM
-    float petalHeight = MAX_PETAL_HEIGHT * frame/MAX_NUM_RINGS;
-    float control1X = cx + cos(angle) * (radius+petalHeight); // curve control point
+    float petalHeight = MAX_PETAL_HEIGHT * index/MAX_NUM_RINGS * currRPM/15.0;
+    float control1X = cx + cos(angle) * (radius+petalHeight); // curve control point 1
     float control1Y = cy + sin(angle) * (radius+petalHeight);
-    float control2X = cx + cos(nextAngle) * (radius+petalHeight); // curve control point
+    float control2X = cx + cos(nextAngle) * (radius+petalHeight); // curve control point 2
     float control2Y = cy + sin(nextAngle) * (radius+petalHeight); 
 
-    // Petal color depends on GSR
     beginShape();
-    noFill();
-    //fill(color(255, 255, 255), 255*0.01);
-    color petalColor = getColor(gsr);
-    //fill(petalColor, 255*0.03);
-    stroke(petalColor);
+    //noFill();
+    fill(color(petalColor, 10));
     strokeWeight(1);
+    stroke(petalColor);
     bezier(x1, y1, control1X, control1Y, control2X, control2Y, x2, y2);
     endShape();
     // Uncomment to view control points for bezier curves
+
     /*
     noFill();
      stroke(color(100, 140, 200));

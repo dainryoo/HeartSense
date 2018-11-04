@@ -37,7 +37,6 @@ void setup() {
   setupProcessing();
 }
 
-
 void setupProcessing() {
   videoEnded = false;
   rings = new ArrayList<Ring>();
@@ -48,7 +47,7 @@ void setupProcessing() {
   if (videoList.length < 1) { // if no videos
     System.out.println("NO VIDEOS TO CHOOSE FROM! Add a video to the data folder");
     // If for some reason, no videos can play, just let the simulation run for 2000 frames
-    videoLength = 2000;
+    videoLength = 500;
   } else {
     while (true) {
       int randomVideoNumber = (int)random(videoList.length);
@@ -59,42 +58,41 @@ void setupProcessing() {
         break;
       }
     }
+
+    System.out.println("Video chosen: " + videoName);
+    video = new Movie(this, videoName) {
+      @Override public void eosEvent() {
+        super.eosEvent();
+        myEoS();
+      }
+    };
+    counter = 0;
+
+    frameRate(videoFrameRate);
+
+    video.play();
+    video.jump(0);
+    video.pause(); // Pausing the video at the first frame so that we can save duration
+    videoLength = round(video.duration() * videoFrameRate); // video duration (seconds) * frameRate (frames per second) = total number of frames
+    videoPlayer = new VideoPlayer();
   }
-
-  System.out.println("Video chosen: " + videoName);
-  video = new Movie(this, videoName) {
-    @Override public void eosEvent() {
-      super.eosEvent();
-      myEoS();
-    }
-  };
-  counter = 0;
-
-  frameRate(videoFrameRate);
-
-  video.play();
-  video.jump(0);
-  video.pause(); // Pausing the video at the first frame so that we can save duration
-
-  videoLength = (int) video.duration() * videoFrameRate; // video duration (seconds) * frameRate (frames per second) = total number of frames
-  videoPlayer = new VideoPlayer();
 }
 
 void draw() {
   if (!videoEnded) {
-    if (video.available()) {
+    if (video != null && video.available()) {
       video.read();
     }
 
     if (counter < videoLength) {
-      if (counter%((int)(videoLength/MAX_NUM_RINGS))== 0) {
+      if (counter%(videoLength/MAX_NUM_RINGS)== 0) {
         addNewRing(); // add a new layer and draw it
       }
     } else {
       if (!videoEnded) {
         println("Press R to restart...");
         videoEnded = true;
-        saveFrame("Flowers/flower-######-"+videoName+".jpg");
+        saveFrame("flowers/flower-######-"+videoName+".jpg");
       }
     }
     counter++;
