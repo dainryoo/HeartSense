@@ -22,12 +22,12 @@ class Ring {
 }
 
 void addNewRing() {
-  currRPM = (int) random(5, 15);
-  currBPM = (int) random(50, 140);
-  currGSR = (int) random(300, 900);
+  //currRPM = (int) random(5, 15);
+  //currBPM = (int) random(50, 140);
+  //currGSR = (int) random(300, 900);
   Ring newRing = new Ring(currRPM, currBPM, currGSR, counter); // Create an instance of a ring to represent the user's data at this time
   rings.add(newRing);
-  //System.out.println("RPM: " + currRPM + "    - BPM: " + currBPM + "     - GSR: " + currGSR);
+  System.out.println("RPM: " + currRPM + "    - BPM: " + currBPM + "     - GSR: " + currGSR);
   drawRing(newRing, rings.size()-1); // draw this new layer
 }
 

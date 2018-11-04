@@ -29,10 +29,10 @@ void settings() {
 }
 
 void setup() {
-  /*
+
   if (!setupPort()) { // something went wrong with Arduino
-   System.out.println("WARNING: Arduino Error");
-   }*/
+    System.out.println("WARNING: Arduino Error");
+  }
 
   setupProcessing();
 }
