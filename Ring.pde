@@ -4,16 +4,16 @@
  * Holds the values for RPM, BPM, and GSR at that point in time
  */
 
-int MAX_PETAL_HEIGHT = 120;  // Height of the tallest petal (arbitrary)
-int MAX_NUM_RINGS = 70;     // Number of rings/layers we want to show up (arbitrary)
+int MAX_PETAL_HEIGHT = 70;  // Height of the tallest petal (arbitrary)
+int MAX_NUM_RINGS = 150;     // Number of rings/layers we want to show up (arbitrary)
 
 class Ring {
-  int rpm;
-  int bpm;
-  int gsr;
-  int time;
+  float rpm;
+  float bpm;
+  float gsr;
+  float time;
 
-  Ring(int breathing, int heart, int sweat, int timeStamp) {
+  Ring(float breathing, float heart, float sweat, float timeStamp) {
     rpm = breathing;
     bpm = heart;
     gsr = sweat;
@@ -22,27 +22,29 @@ class Ring {
 }
 
 void addNewRing() {
-  //currRPM = (int) random(5, 15);
-  //currBPM = (int) random(50, 140);
-  //currGSR = (int) random(300, 900);
+  currRPM = (int) random(5, 15);
+  currBPM = (int) random(50, 140);
+  currGSR = (int) random(300, 900);
   Ring newRing = new Ring(currRPM, currBPM, currGSR, counter); // Create an instance of a ring to represent the user's data at this time
   rings.add(newRing);
   System.out.println("RPM: " + currRPM + "    - BPM: " + currBPM + "     - GSR: " + currGSR);
-  drawRing(newRing, rings.size()-1); // draw this new layer
+  if (!plotLater) {
+    drawRing(newRing, rings.size()-1); // draw this new layer
+  }
 }
 
 void drawRing(Ring r, int index) {
-  int rpm = r.rpm;
-  int bpm = r.bpm;
-  int gsr = r.gsr;
-  int frame = r.time;
+  float rpm = r.rpm;
+  float bpm = r.bpm;
+  float gsr = r.gsr;
 
   // Circular base of the ring has radius based on index (the more recent the ring, the greater its index in the ArrayList, and the greater its radius)
-  float radius = width/2.0 * index/MAX_NUM_RINGS;
+  float radius = (width * index)/(4*MAX_NUM_RINGS);
+  //println("Width: " + width + "   Index: " + index + "    Radius: "+radius);
   float cx = width/2.0;  // center of circle
   float cy = height/2.0; // center of circle
   float angleOffset = (index*1.0/MAX_NUM_RINGS) * PI; // add so that not all layers have first petal starting at the same angle
-  color petalColor = getColor(gsr);
+  color petalColor = getColor(parseInt(gsr));
 
   // Frequency of "petals" along the circumference depends on bpm
   // The x1,y1, x2,y2 coordinates represent the ends of the bezier curves that make up the ring
@@ -58,7 +60,7 @@ void drawRing(Ring r, int index) {
     float y2 = cy + (radius * sin(nextAngle)); // y-coord of other end of bezier curve
 
     // Petal height depends on RPM
-    float petalHeight = MAX_PETAL_HEIGHT * index/MAX_NUM_RINGS * currRPM/15.0;
+    float petalHeight = MAX_PETAL_HEIGHT * index/MAX_NUM_RINGS * rpm/10.0;
     float control1X = cx + cos(angle) * (radius+petalHeight); // curve control point 1
     float control1Y = cy + sin(angle) * (radius+petalHeight);
     float control2X = cx + cos(nextAngle) * (radius+petalHeight); // curve control point 2
@@ -67,7 +69,7 @@ void drawRing(Ring r, int index) {
     beginShape();
     //noFill();
     fill(color(petalColor, 10));
-    strokeWeight(1);
+    strokeWeight(1.5);
     stroke(petalColor);
     bezier(x1, y1, control1X, control1Y, control2X, control2Y, x2, y2);
     endShape();

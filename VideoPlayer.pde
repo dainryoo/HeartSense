@@ -16,7 +16,7 @@ class VideoPlayer extends PApplet {
 
   void draw() {
     if (!ended)  background(video);
-    else background(0);
+    //else background(0);
   }
 }
 
@@ -26,5 +26,5 @@ void movieEvent(final Movie m) {
 }
 
 void myEoS() {
-  ended = true;
+  //ended = true;
 }

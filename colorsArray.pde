@@ -65,7 +65,11 @@ color colors[] = {
   color(127.5,0,0)
 };
 
-// map GSR (?~?) to color (0~63)
+// map GSR to color (0-63)
 color getColor(int gsr) {
-  return colors[(int) (((gsr-300) / 10))];
+  if(!plotLater) {
+    return colors[(int) (((gsr)/ 29))];
+  }
+  else
+    return colors[(int) (((gsr / 30)))];
 }
