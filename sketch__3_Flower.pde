@@ -49,7 +49,7 @@ boolean allowButtonLogic = true;
 
 int restartBtnW = 180;
 int restartBtnH = 50;
-int restartBtnX = WIDTH-35;
+int restartBtnX = WIDTH-355;
 int restartBtnY = titleY-20;
 
 boolean mouseOverRestartBtn = false;

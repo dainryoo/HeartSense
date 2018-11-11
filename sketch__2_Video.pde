@@ -113,6 +113,7 @@ void playVideo() {
       currentState = 3;
       video.playbin.setVolume(0);
       video.jump(0);
+      paused = false;
     }
   }
 }
