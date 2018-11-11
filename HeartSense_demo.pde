@@ -1,164 +1,209 @@
-import java.io.*;
 import processing.video.*;
 
-int currBPM = 0;      // Heart Rate value from Arduino
-int currGSR = 0;      // GSR value from Arduino
-int currRPM = 0;
+int currentState; 
+// 0 = welcome
+// 1 = first time user
+// 2 = general instructions
+// 3 = video
+// 4 = flower
 
-int maxNumRings = 250; // 60 looks good, but is arbitrary
-int videoLength; // number of frames in the video 
-int videoFrameRate = 30; // frameRate the video plays at
-String videoName = "";
+int HEIGHT = 800;
+int WIDTH = 1440;
 
-Movie video; // the randomly selected video to play
-VideoPlayer videoPlayer;
+ArrayList<Ring> introRings;
 
-ArrayList<Integer> heartRate = new ArrayList<Integer>();
-ArrayList<Integer> GSR = new ArrayList<Integer>();
+Movie video;
+PImage logo;
 
-boolean videoEnded;
-float maxRadius;
-int counter;
+color c_background = color(250, 250, 250);
+color c_text = color(60);
+color c_white = color(255, 255, 255);
+color c_black = color(0, 0, 0);
+color c_gray = color(200);
+color c_red = color(251, 114, 86);
 
-boolean plotLater = false;
-boolean gotXethruData;
-boolean finishedPlot;
+int titleTextSize = 24;
+int subtitleTextSize = 20;
+int bodyTextSize = 12;
+int buttonTextSize = 18;
 
-int ringCounter;
-
-float startTime, endTime;
-String startTimeString;
-
-// Holds rings from earliest -> most recent
-ArrayList<Ring> rings;
-
-void settings() {
-  size(1000, 1000);
-  maxRadius = width/2;
-}
+color c_btnFill = color(92, 107, 192);
+color c_btnHover = color(108, 124, 216);
+color c_btnText = c_white;
+float buttonRounding = 6;
 
 void setup() {
-  /*if (!setupPort()) { // something went wrong with Arduino
-    System.out.println("WARNING: Arduino Error");
-  }*/
+  size(1440, 800);
+  surface.setIcon(loadImage("logo_color.png"));
+  logo = loadImage("logo.png");
+  logo.resize(150, 150);
+  currentState = 0;
 
-  startProcessing();
+  makeIntroRings();
 }
 
+void makeIntroRings() {
+  introRings = new ArrayList<Ring>();
+  int numIntroRings = 15;
+  for (int i = 1; i <= numIntroRings; i++) {
+    Ring newRing = new Ring((int)random(MIN_RPM, MAX_RPM), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), 1.0*i/numIntroRings);
+    introRings.add(newRing);
+  }
+}
 
-void startProcessing()
-{
-  startTime = hour()*3600+minute()*60+second();
-  startTimeString =  hour()+":"+minute()+":"+second();
-  videoEnded = false;
-  rings = new ArrayList<Ring>();
+void exit() {
+  video = null;
+  super.exit();
+}
 
-  background(255);
+void setupVideo() {
+  video = new Movie(this, randomVideo()) {
+    @Override public void eosEvent() {
+      super.eosEvent();
+      videoEndEvent();
+    }
+  };
+  video.play();
+  videoOver = false;
+  lastSavedFrame = 0;
+}
+
+void videoEndEvent() {
+  videoOver = true;
+}
+
+void clearMouseOvers() {
+  // 0: Welcome
+  mouseOverStartBtn = false;
+
+  // 1: Instructions
+  mouseOverStartVideoBtn = false;
+
+  // 2: Video
+  mouseOverFlowerBtn = false;
+  videoOver = false;
+
+  // 3: Flower
+  mouseOverGrabber = false;
+  mouseOverSlider = false;
+  mouseOverPlayBtn = false;
+  allowButtonLogic = true;
+  mouseOverRestartBtn = false;
+}
+
+/*
+ * Returns the name of a randomly selected video
+ */
+String randomVideo() {
+  String videoName = "";
   File f = new File(sketchPath("data"));
   String[] videoList = f.list();
   if (videoList.length < 1) { // if no videos
     System.out.println("NO VIDEOS TO CHOOSE FROM! Add a video to the data folder");
-
-    // If for some reason, no videos can play, just let the simulation run for 2000 frames
-    videoLength = 2000;
   } else {
-    while (true) {
+    int attempts = videoList.length; // attempt to find a video file videoList.length times
+    while (attempts > 0 && videoName.equals("")) {
       int randomVideoNumber = (int)random(videoList.length);
       String[] fileNameSegments = split(videoList[randomVideoNumber], ".");
-
-      //Skip names of hidden files, only consider those file names that end with .mov
-      if (fileNameSegments.length>1) {
-        if (fileNameSegments[1].equalsIgnoreCase("mov") || fileNameSegments[1].equalsIgnoreCase("mp4")) {
-          videoName = videoList[randomVideoNumber];
-          break;
-        }
+      if (fileNameSegments.length > 1 && (fileNameSegments[1].equalsIgnoreCase("mov") || fileNameSegments[1].equalsIgnoreCase("mp4"))) {
+        videoName = videoList[randomVideoNumber];
       }
     }
   }
-
-
-  //String videoName = videoList[(int) random(videoList.length)];
-
-  System.out.println("Video chosen: " + videoName);
-  video = new Movie(this, videoName) {
-    @Override 
-    public void eosEvent() {
-      super.eosEvent();
-      myEoS();
-    }
-  };
-
-  frameRate(videoFrameRate);
-  // Pausing the video at the first frame so that we can save duration
-  video.play();
-  video.jump(0);
-  video.pause();
-  // multiply length of video (seconds) by frameRate (number of frames per second) to get total number of frames
-  videoLength = (int) video.duration() * videoFrameRate;
-  videoPlayer = new VideoPlayer();
-
-  ringCounter = 0;
-  gotXethruData = false;
-  finishedPlot =false;
+  return videoName;
 }
 
 void draw() {
+  switch(currentState) {
+  case 0:
+    welcome();
+    break;
+  case 1:
+    instructions();
+    break;
+  case 2:
+    playVideo();
+    break;
+  case 3:
+    flower();
+    break;
+  default:
+    background(0);
+    break;
+  }
+}
 
-  if (!videoEnded) {
 
-    if (video.available()) {
-      video.read();
-    }
+void drawButton(String s) {
+  noStroke();
+  textAlign(CENTER, CENTER);
+  textSize(buttonTextSize);
 
-    if (counter < videoLength) {
-      if (counter%(videoLength/MAX_NUM_RINGS)== 0) {
-        addNewRing(); // add a new layer and draw it
-      }
+  if (s.equals("start")) {
+
+    if (mouseOverStartBtn) {
+      fill(c_btnHover);
     } else {
-      if (!videoEnded) {
-        //println("Press R to restart...");
-        videoEnded = true;
-        endTime = hour()*3600+minute()*60+second();
-        println("Press y if stopped Xethru recording");
-      }
+      fill(c_btnFill);
     }
-    counter++;
+
+    rect(startBtnX, startBtnY, startBtnW, startBtnH, buttonRounding);
+    fill(c_btnText);
+    text("START", startBtnX, startBtnY, startBtnW, startBtnH);
+  } else if (s.equals("port")) {
+    fill(c_btnFill);
+    rect(choosePortX, choosePortY, choosePortW, choosePortH, buttonRounding);
+    fill(c_btnText);
+    text("CHOOSE A PORT", choosePortX, choosePortY, choosePortW, choosePortH);
+  } else if (s.equals("startVideo")) {
+
+    if (mouseOverStartVideoBtn) {
+      fill(c_btnHover);
+    } else {
+      fill(c_btnFill);
+    }
+
+    rect(startVideoBtnX, startVideoBtnY, startVideoBtnW, startVideoBtnH, buttonRounding);
+    fill(c_btnText);
+    text("PLAY VIDEO", startVideoBtnX, startVideoBtnY, startVideoBtnW, startVideoBtnH);
+  } else if (s.equals("flower")) {
+    if (mouseOverFlowerBtn) {
+      fill(c_btnHover);
+    } else {
+      fill(c_btnFill);
+    }
+
+    rect(flowerBtnX, flowerBtnY, flowerBtnW, flowerBtnH, buttonRounding);
+    fill(c_btnText);
+    text("PLOT", flowerBtnX, flowerBtnY, flowerBtnW, flowerBtnH);
+  } else if (s.equals("reset")) {
+    mouseOverResetBtn = mouseOver(resetBtnX, resetBtnY, resetBtnX+resetBtnW, resetBtnY+resetBtnH);
+
+    if (mouseOverResetBtn) {
+      fill(c_btnHover);
+    } else {
+      fill(c_btnFill);
+    }
+
+    rect(resetBtnX, resetBtnY, resetBtnW, resetBtnH, buttonRounding);
+    fill(c_btnText);
+    text("WATCH ANOTHER VIDEO", resetBtnX, resetBtnY, resetBtnW, resetBtnH);
+  } else if (s.equals("restart")) {
+    mouseOverRestartBtn = mouseOver(restartBtnX, restartBtnY, restartBtnX+restartBtnW, restartBtnY+restartBtnH);
+
+    if (mouseOverRestartBtn) {
+      fill(c_btnHover);
+    } else {
+      fill(c_btnFill);
+    }
+
+    rect(restartBtnX, restartBtnY, restartBtnW, restartBtnH, buttonRounding);
+    fill(c_btnText);
+    text("RESTART DEMO", restartBtnX, restartBtnY, restartBtnW, restartBtnH);
   }
+}
 
-
-  //----------When video has ended--------
-  if (videoEnded) {
-    if (!plotLater) {
-      saveFrame("Flowers/flower-######-"+videoName+".jpg");
-    }
-
-    if (keyPressed && (key == 'R' || key == 'r')) {
-      startProcessing();
-    }
-
-    if (plotLater) {
-      if (!gotXethruData) {
-        //Make sure to stop Xethru recording first
-        if (keyPressed && (key == 'Y' || key == 'y')) {
-            getDataFromCSVFile();
-        }
-      } else {
-        if (ringCounter<rings.size()) {
-          drawRing(rings.get(ringCounter), ringCounter); // draw this new layer
-          ringCounter++;
-        }
-      }
-
-      //Save AFTER plot has finished drawing
-      if (ringCounter >= rings.size() && !finishedPlot) {
-        finishedPlot = true;
-        saveFrame("Flowers/flower-######-"+videoName+".jpg");
-        postInit();
-      }
-
-      if (finishedPlot) {
-        ProgressBar();
-      }
-    }
-  }
+// returns whether mouse is within the bounds
+boolean mouseOver(int x1, int y1, int x2, int y2) {
+  return (mouseX>x1 && mouseX<x2 && mouseY>y1 && mouseY<y2);
 }
