@@ -1,5 +1,3 @@
 # ignore all the video files in /data
-data/*.mov
-data/*.mp4
-data/*.MOV
-data/*.MP4
+data/*.[mM][oO][vV]
+data/*.[mM][pP]4

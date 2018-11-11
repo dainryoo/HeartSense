@@ -9,6 +9,6 @@
 6. Press the Upload button (->)
 
 ## II. Processing
-1. Open HeartSense_demo.pde in Processing
+1. Open HeartSense.pde in Processing
 2. Make sure the Video library is added
 3. Press Run
