@@ -59,13 +59,9 @@ void welcome() {
   }
  
   // START BUTTON
-  // check if touching Start button
-  mouseOverStartBtn = mouseOver(startBtnX, startBtnY, startBtnX+startBtnW, startBtnY+startBtnH);
-
-  // draw Start button
   drawButton("start");
 
-  // check if button clicked
+  
   if (mouseOverStartBtn && mousePressed && currentState != 1) {
     currentState = 1;
   }

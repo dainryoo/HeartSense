@@ -8,12 +8,12 @@ int currRPM = 10; // ARBITRARY values in case sensors don't work
 int currBPM = 80;
 int currGSR = 200;
 
-int MIN_RPM = 5;
-int MAX_RPM = 50;
-int MIN_BPM = 40;
+float MIN_RPM = 0;
+float MAX_RPM = 60;
+int MIN_BPM = 30;
 int MAX_BPM = 180;
 int MIN_GSR = 100;
-int MAX_GSR = 1500;
+int MAX_GSR = 2100;
 
 
 boolean setupPort() {

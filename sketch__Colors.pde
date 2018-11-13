@@ -1,7 +1,7 @@
 // map GSR (MIN_GSR, MAX_GSR) to color (0-63)
 // https://rosettacode.org/wiki/Map_range
 color getColor(int gsr) {
-  return colors[(gsr-MIN_GSR)*(colors.length)/(MAX_GSR-MIN_GSR)];
+  return colors[(gsr-minGSR)*(colors.length-1)/(maxGSR-minGSR)];
 }
 
 

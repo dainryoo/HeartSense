@@ -53,7 +53,6 @@ int videoAreaY = titleY + 80;
 int videoAreaW = WIDTH-350;
 int videoAreaH = HEIGHT-270;
 
-
 void playVideo() {
   // VIDEO
   // add a ring if an appropriate amount of time has passed
@@ -63,6 +62,7 @@ void playVideo() {
     Ring newRing = new Ring((int)random(MIN_RPM, MAX_RPM), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), video.time()/video.duration());
     //Ring newRing = new Ring(currRPM, currBPM, currGSR, video.time()/video.duration());
     rings.add(newRing);
+    //System.out.println("RPM: " + currRPM + "    BPM: " + currBPM + "     GSR: " + currGSR);
   }
 
   if (video.available()) {
@@ -88,32 +88,19 @@ void playVideo() {
     text("Video complete", WIDTH/2, flowerBtnY-80);
     text("Please make sure you have stopped XeThru recording.", WIDTH/2, flowerBtnY - 50);
 
-    // check if touching Flower button
-    mouseOverFlowerBtn = mouseOver(flowerBtnX, flowerBtnY, flowerBtnX+flowerBtnW, flowerBtnY+flowerBtnH);
-
-    // check if touching Reset button
-    mouseOverResetBtn = mouseOver(resetBtnX, resetBtnY, resetBtnX+resetBtnW, resetBtnY+resetBtnH);
-
-    // draw Reset button
     drawButton("reset");
-    // check if button clicked
     if (mouseOverResetBtn && mousePressed && currentState != 1) {
       clearMouseOvers();
       currentState = 1;
     }
 
-    // draw Flower button
     drawButton("flower");
-
-    // check if button clicked
     if (mouseOverFlowerBtn && mousePressed && currentState != 3) {
       clearMouseOvers();
-      currPos = sliderX; // put grabber at the beginning of the slider
-      drawnLastFrame = 0;
       currentState = 3;
-      video.playbin.setVolume(0);
-      video.jump(0);
-      paused = false;
+
+      fill(c_white);
+      rect(flowerAreaX, flowerAreaY, flowerAreaW, flowerAreaH);
     }
   }
 }
