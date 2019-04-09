@@ -14,7 +14,7 @@ int MAX_RINGS = 90;
 int MIN_PETALS = 15;
 int MAX_PETALS = 40;
 int MAX_PETAL_HEIGHT = 100;
-float RPM_HEIGHT_EFFECT = 0.25; // how much the RPM effects height
+float IBI_HEIGHT_EFFECT = 0.25; // how much the RPM effects height
 
 int boxWidth = videoAreaW/2;
 int paddingBetweenBoxes = 0;

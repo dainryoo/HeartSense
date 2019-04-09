@@ -58,7 +58,7 @@ void drawRing(Ring r, int screen) {
     float y2 = flowerCenterY + (radius * sin(nextAngle)); // y-coord of other end of bezier curve
 
     // Petal height depends on RPM
-    float petalHeight = (MAX_PETAL_HEIGHT * p) * (r.rpm-minRPM)/(maxRPM-minRPM) * RPM_HEIGHT_EFFECT;
+    float petalHeight = (MAX_PETAL_HEIGHT * p) * (r.rpm-MIN_IBI)/(MAX_IBI-MIN_IBI) * IBI_HEIGHT_EFFECT;
     if (screen < 3) {
       petalHeight *= 6;
     }

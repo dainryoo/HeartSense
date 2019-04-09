@@ -74,9 +74,10 @@ void instructions() {
       rings = new ArrayList<Ring>();
       
       if (!portSetupSuccessful) {
-        //portSetupSuccessful = setupPort();
+        portSetupSuccessful = setupPort();
       }
       
       setupVideo();
+      resetMinMax();
   }
 }

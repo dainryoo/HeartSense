@@ -4,60 +4,69 @@ Serial port;  // Create object from Serial class
 int Sensor;   // Pulse sensor data from Arduino
 int lf = 10;  // ASCII linefeed
 
-int currRPM = 10; // ARBITRARY values in case sensors don't work
-int currBPM = 80;
-int currGSR = 200;
 
-float MIN_RPM = 0;
-float MAX_RPM = 60;
-int MIN_BPM = 30;
-int MAX_BPM = 180;
-int MIN_GSR = 100;
-int MAX_GSR = 2100;
+int curr_ibi; // ARBITRARY values in case sensors don't work
+int curr_bpm;
+int curr_gsr;
 
+float MIN_IBI;
+float MAX_IBI;
+int MIN_BPM;
+int MAX_BPM;
+int MIN_GSR;
+int MAX_GSR;
+
+void resetMinMax() {
+  println("======================================================================================================");
+  curr_ibi = 10; // ARBITRARY values in case sensors don't work
+  curr_bpm = 80;
+  curr_gsr = 200;
+
+  MIN_IBI = 100;
+  MAX_IBI = 1000;
+  MIN_BPM = 30;
+  MAX_BPM = 180;
+  MIN_GSR = 100;
+  MAX_GSR = 2100;
+}
 
 boolean setupPort() {
   try {
-    String portName = Serial.list()[selectedPort]; 
+    String portName = Serial.list()[0]; // Port usually seems to be 0, but maybe try 1 or 2 or etc. if it doesn't work?
     port = new Serial(this, portName, 115200);
-    // Throw out the first reading, in case we started reading in the middle of a string from the sender.
-    port.clear();
+    port.clear(); // Throw out the first reading, in case we started reading in the middle of a string from the sender.
     port.bufferUntil(lf);
     return true;
   } 
   catch (Exception e) {
-    System.out.println(e.toString());
     return false;
   }
 }
 
 void serialEvent(Serial port) {
-  if (portSetupSuccessful) {
-    try {
-      String data = port.readStringUntil('\n'); // ... read it and store it in data
-      if (data.charAt(0) == 'R') {
-        data = data.substring(1);
-        int tempRPM = (int)parseFloat(data);
-        if (tempRPM <= MAX_RPM && tempRPM >= MIN_RPM) {
-          currRPM = tempRPM;
-        }
-      } else if (split(data, ",").length>1) {
-        String[] sensorValues = (split(data, ",")); // cut off white space (carriage return)
-        int tempBPM = parseInt(sensorValues[0]);
-        if (tempBPM <= MAX_BPM && tempBPM >= MIN_BPM) {
-          currBPM = tempBPM;
-        }
+  try {
+    String data = port.readStringUntil('\n'); // ... read it and store it in data
+    data = trim(data); // cut off white space (carriage return)
 
-        int tempGSR = parseInt(sensorValues[1]);
-        if (tempGSR <= MAX_GSR && tempGSR >= MIN_GSR) {
-          currGSR = tempGSR;
-        }
-      } else {
-        println(data);
-      }
-    } 
-    catch(Exception e) {
-      System.out.println(e.toString());
+    if (data.charAt(0) == 'S') { // leading 'S' means Pulse Sensor data packet
+      data = data.substring(1);
+      Sensor = int(data);
     }
+    if (data.charAt(0) == 'B') { // leading 'B' for BPM data
+      data = data.substring(1);
+      curr_bpm = int(data);
+    }
+    if (data.charAt(0) == 'Q') { // leading 'Q' means IBI data
+      data = data.substring(1);
+      curr_ibi = int(data);
+    }
+    if (data.charAt(0) == 'G') { // leading 'G' means GSR data
+      data = data.substring(1);
+      curr_gsr = int(data);
+    }
+    println(curr_ibi, curr_bpm, curr_gsr);
+  } 
+  catch(Exception e) {
+    //System.out.println(e.toString());
   }
 }

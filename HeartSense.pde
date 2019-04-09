@@ -42,6 +42,7 @@ void setup() {
   currentState = 0;
   serialListOld = Serial.list();
 
+  resetMinMax();
   makeIntroRings();
 }
 
@@ -49,7 +50,7 @@ void makeIntroRings() {
   introRings = new ArrayList<Ring>();
   int numIntroRings = 15;
   for (int i = 1; i <= numIntroRings; i++) {
-    Ring newRing = new Ring((int)random(MIN_RPM, MAX_RPM), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), 1.0*i/numIntroRings);
+    Ring newRing = new Ring((int)random(MIN_IBI, MAX_IBI), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), 1.0*i/numIntroRings);
     introRings.add(newRing);
   }
 }
@@ -69,13 +70,10 @@ void setupVideo() {
   video.play();
   videoOver = false;
   lastSavedFrame = 0;
-  startTime = hour()*3600+minute()*60+second();
 }
 
 void videoEndEvent() {
-  endTime = hour()*3600+minute()*60+second();
   videoOver = true;
-  
 }
 
 void clearMouseOvers() {
@@ -121,10 +119,12 @@ String randomVideo() {
       }
     }
   }
-  return videoName;
+  //return videoName;
+  return "cat.mp4";
 }
 
 void draw() {
+ 
   switch(currentState) {
   case 0:
     welcome();

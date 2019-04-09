@@ -59,10 +59,28 @@ void playVideo() {
   float currVideoPercent = video.time()/video.duration();
   if (Math.abs(currVideoPercent-lastSavedFrame) > (1.0/MAX_RINGS)) {
     lastSavedFrame = currVideoPercent;
-    Ring newRing = new Ring((int)random(MIN_RPM, MAX_RPM), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), video.time()/video.duration());
-    //Ring newRing = new Ring(currRPM, currBPM, currGSR, video.time()/video.duration());
+    //Ring newRing = new Ring((int)random(MIN_IBI, MAX_IBI), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), video.time()/video.duration());
+    Ring newRing = new Ring(curr_ibi, curr_bpm, curr_gsr, video.time()/video.duration());
+    if (curr_ibi < MIN_IBI) {
+      MIN_IBI = curr_ibi;
+    }
+    if (curr_ibi > MAX_IBI) {
+      MAX_IBI = curr_ibi;
+    }
+    if (curr_bpm < MIN_BPM) {
+      MIN_BPM = curr_bpm;
+    }
+    if (curr_bpm > MAX_BPM) {
+      MAX_BPM = curr_bpm;
+    }
+
+    if (curr_gsr < MIN_GSR) {
+      MIN_GSR = curr_gsr;
+    }
+    if (curr_gsr > MAX_GSR) {
+      MAX_GSR = curr_gsr;
+    }
     rings.add(newRing);
-    //System.out.println("RPM: " + currRPM + "    BPM: " + currBPM + "     GSR: " + currGSR);
   }
 
   if (video.available()) {
