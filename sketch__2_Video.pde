@@ -59,26 +59,26 @@ void playVideo() {
   float currVideoPercent = video.time()/video.duration();
   if (Math.abs(currVideoPercent-lastSavedFrame) > (1.0/MAX_RINGS)) {
     lastSavedFrame = currVideoPercent;
-    //Ring newRing = new Ring((int)random(MIN_IBI, MAX_IBI), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), video.time()/video.duration());
+    //Ring newRing = new Ring((int)random(fake_min_ibi, fake_max_ibi), (int)random(fake_min_bpm, fake_max_bpm), (int)random(fake_min_gsr, fake_max_gsr), video.time()/video.duration());
     Ring newRing = new Ring(curr_ibi, curr_bpm, curr_gsr, video.time()/video.duration());
-    if (curr_ibi < MIN_IBI) {
-      MIN_IBI = curr_ibi;
+    if (curr_ibi < data_min_ibi) {
+      data_min_ibi = curr_ibi;
     }
-    if (curr_ibi > MAX_IBI) {
-      MAX_IBI = curr_ibi;
+    if (curr_ibi > data_max_ibi) {
+      data_max_ibi = curr_ibi;
     }
-    if (curr_bpm < MIN_BPM) {
-      MIN_BPM = curr_bpm;
+    if (curr_bpm < data_min_bpm) {
+      data_min_bpm = curr_bpm;
     }
-    if (curr_bpm > MAX_BPM) {
-      MAX_BPM = curr_bpm;
+    if (curr_bpm > data_max_bpm) {
+      data_max_bpm = curr_bpm;
     }
 
-    if (curr_gsr < MIN_GSR) {
-      MIN_GSR = curr_gsr;
+    if (curr_gsr < data_min_gsr) {
+      data_min_gsr = curr_gsr;
     }
-    if (curr_gsr > MAX_GSR) {
-      MAX_GSR = curr_gsr;
+    if (curr_gsr > data_max_gsr) {
+      data_max_gsr = curr_gsr;
     }
     rings.add(newRing);
   }

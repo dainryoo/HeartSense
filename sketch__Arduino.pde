@@ -9,25 +9,35 @@ int curr_ibi; // ARBITRARY values in case sensors don't work
 int curr_bpm;
 int curr_gsr;
 
-float MIN_IBI;
-float MAX_IBI;
-int MIN_BPM;
-int MAX_BPM;
-int MIN_GSR;
-int MAX_GSR;
+float fake_min_ibi = 100; 
+float fake_max_ibi = 1000;
+int fake_min_bpm = 30;
+int fake_max_bpm = 180;
+int fake_min_rpm = 0;
+int fake_max_rpm = 100;
+int fake_min_gsr = 100;
+int fake_max_gsr = 2100;
+
+float data_min_ibi = 0;
+float data_max_ibi = 0;
+int data_min_bpm = 0;
+int data_max_bpm = 0;
+int data_min_rpm = 0;
+int data_max_rpm = 0;
+int data_min_gsr = 0;
+int data_max_gsr = 0;
 
 void resetMinMax() {
-  println("======================================================================================================");
   curr_ibi = 10; // ARBITRARY values in case sensors don't work
   curr_bpm = 80;
   curr_gsr = 200;
 
-  MIN_IBI = 100;
-  MAX_IBI = 1000;
-  MIN_BPM = 30;
-  MAX_BPM = 180;
-  MIN_GSR = 100;
-  MAX_GSR = 2100;
+  data_min_ibi = Integer.MAX_VALUE;
+  data_max_ibi = Integer.MIN_VALUE;
+  data_min_bpm = Integer.MAX_VALUE;
+  data_max_bpm = Integer.MIN_VALUE;
+  data_min_gsr = Integer.MAX_VALUE;
+  data_max_gsr = Integer.MIN_VALUE;
 }
 
 boolean setupPort() {
@@ -64,7 +74,7 @@ void serialEvent(Serial port) {
       data = data.substring(1);
       curr_gsr = int(data);
     }
-    println(curr_ibi, curr_bpm, curr_gsr);
+    // println(curr_ibi, curr_bpm, curr_gsr);
   } 
   catch(Exception e) {
     //System.out.println(e.toString());

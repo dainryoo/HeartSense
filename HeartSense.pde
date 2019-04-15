@@ -50,7 +50,7 @@ void makeIntroRings() {
   introRings = new ArrayList<Ring>();
   int numIntroRings = 15;
   for (int i = 1; i <= numIntroRings; i++) {
-    Ring newRing = new Ring((int)random(MIN_IBI, MAX_IBI), (int)random(MIN_BPM, MAX_BPM), (int)random(MIN_GSR, MAX_GSR), 1.0*i/numIntroRings);
+    Ring newRing = new Ring((int)random(fake_min_ibi, fake_max_ibi), (int)random(fake_min_bpm, fake_max_bpm), (int)random(fake_min_gsr, fake_max_gsr), 1.0*i/numIntroRings);
     introRings.add(newRing);
   }
 }
