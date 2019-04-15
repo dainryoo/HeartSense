@@ -119,8 +119,8 @@ String randomVideo() {
       }
     }
   }
-  //return videoName;
-  return "cat.mp4";
+  return videoName;
+  //return "cat.mp4";
 }
 
 void draw() {
