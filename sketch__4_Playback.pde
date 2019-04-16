@@ -13,7 +13,7 @@ ArrayList<Ring> rings;
 int MAX_RINGS = 90;
 int MIN_PETALS = 15;
 int MAX_PETALS = 40;
-int MAX_PETAL_HEIGHT = 50;
+int MAX_PETAL_HEIGHT = 100;
 int MIN_PETAL_HEIGHT = 10;
 float IBI_HEIGHT_EFFECT = 0.25; // how much the RPM effects height
 

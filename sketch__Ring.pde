@@ -32,11 +32,11 @@ void drawRing(Ring r, int screen) {
   if (screen == 4) {
     flowerCenterX = (leftX + boxWidth/2); 
     flowerCenterY = (boxY + boxWidth/2); 
-    flowerMaxRadius = boxWidth/2-70; // padding of 100 around the flower
+    flowerMaxRadius = boxWidth/2-100; // padding of 100 around the flower
   } else if (screen == 3) {
     flowerCenterX = flowerAreaW/2 + flowerAreaX;
     flowerCenterY = flowerAreaH/2 + flowerAreaY;
-    flowerMaxRadius = flowerAreaH/2 - 40;
+    flowerMaxRadius = flowerAreaH/2 - 75;
   } else {
     flowerCenterX = WIDTH-100;
     flowerCenterY = HEIGHT-100;
@@ -69,7 +69,7 @@ void drawRing(Ring r, int screen) {
       petalHeight = map_to(r.rpm, (int)fake_min_ibi, (int)fake_max_ibi, (int)(MIN_PETAL_HEIGHT * p), (int)(MAX_PETAL_HEIGHT * p));
     } else {
       //petalHeight = map_to(r.rpm, (int)data_min_ibi, (int)data_max_ibi, (int)(MIN_PETAL_HEIGHT * p), (int)(MAX_PETAL_HEIGHT * p));
-      petalHeight = map_to((int)r.rpm, (int)data_min_ibi, (int)data_max_ibi, (int)(MIN_PETAL_HEIGHT * p), (int)(MAX_PETAL_HEIGHT * p));
+      petalHeight = map_to(r.rpm, (int)data_min_ibi, (int)data_max_ibi, (int)(MIN_PETAL_HEIGHT * p), (int)(MAX_PETAL_HEIGHT * p));
     }
 
     if (screen < 3) {
