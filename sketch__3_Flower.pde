@@ -21,8 +21,14 @@ int playbackBtnH = replayBtnH;
 int playbackBtnX = replayBtnX;
 int playbackBtnY = replayBtnY + replayBtnH + 10;
 
+int saveBtnW = replayBtnW;
+int saveBtnH = replayBtnH;
+int saveBtnX = replayBtnX;
+int saveBtnY = replayBtnY + replayBtnH + 30;
+
 boolean mouseOverReplayBtn = false;
 boolean mouseOverPlaybackBtn = false;
+boolean mouseOverSaveBtn = false;
 boolean flowerOver = false;
 
 int currRing = 0;
@@ -38,6 +44,7 @@ void playFlower() {
   } else {
     drawButton("replay");
     drawButton("playback");
+    drawButton("print");
     
     if (mouseOverReplayBtn && mousePressed) {
       clearMouseOvers();
@@ -50,6 +57,15 @@ void playFlower() {
       while(!gotXethruData){
         //wait till we are done reading the XeThru data file
       }*/
+      int imageLeftCoord = 450;
+      int imageTopCoord = 175;
+      PImage heartImage = get(imageLeftCoord,imageTopCoord,(flowerAreaH), (flowerAreaH));
+      String imageName = String.format("%02d", month())
+                    + String.format("%02d", day())
+                    + "_"
+                    + String.format("%02d", hour())
+                    + String.format("%02d", minute());
+      heartImage.save("/flowers/" + imageName + ".jpg");
       
       clearMouseOvers();
       currRing = 0;

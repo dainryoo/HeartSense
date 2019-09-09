@@ -73,7 +73,7 @@ void drawRing(Ring r, int screen) {
     }
 
     if (screen < 3) {
-      petalHeight *= 6;
+      petalHeight *= 2;
     }
     float control1X = flowerCenterX + cos(angle) * (radius+petalHeight); // curve control point 1
     float control1Y = flowerCenterY + sin(angle) * (radius+petalHeight);

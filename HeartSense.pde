@@ -124,7 +124,7 @@ String randomVideo() {
 }
 
 void draw() {
- 
+
   switch(currentState) {
   case 0:
     welcome();
@@ -153,25 +153,23 @@ int selectedPort = -1;
 void findArduinoPort()
 {
   boolean dissimilar = false;
-  if(serialListOld.length<Serial.list().length)
+  if (serialListOld.length<Serial.list().length)
   {
-    for(int i=0;i<serialListOld.length;i++)
+    for (int i=0; i<serialListOld.length; i++)
     {
-      if(!serialListOld[i].equals(Serial.list()[i]))
+      if (!serialListOld[i].equals(Serial.list()[i]))
       {
         selectedPort = i;
         dissimilar = true;
         break;
       }
     }
-    if(!dissimilar)
+    if (!dissimilar)
       selectedPort = Serial.list().length-1;
-    
+
     println(selectedPort);
-    
   }
   serialListOld = Serial.list();
-  
 }
 
 void drawButton(String s) {
@@ -229,7 +227,7 @@ void drawButton(String s) {
     }
     rect(replayBtnX, replayBtnY, replayBtnW, replayBtnH, buttonRounding);
     fill(c_btnText);
-    text("REPLAY FLOWER",replayBtnX, replayBtnY, replayBtnW, replayBtnH);
+    text("REPLAY FLOWER", replayBtnX, replayBtnY, replayBtnW, replayBtnH);
   } else if (s.equals("playback")) {
     mouseOverPlaybackBtn = mouseOver(playbackBtnX, playbackBtnY, playbackBtnX+playbackBtnW, playbackBtnY+playbackBtnH);
     if (mouseOverPlaybackBtn) {
@@ -240,7 +238,17 @@ void drawButton(String s) {
     rect(playbackBtnX, playbackBtnY, playbackBtnW, playbackBtnH, buttonRounding);
     fill(c_btnText);
     text("FLOWER + VIDEO", playbackBtnX, playbackBtnY, playbackBtnW, playbackBtnH);
-  }  else if (s.equals("restart")) {
+  } else if (s.equals("save")) {
+    mouseOverSaveBtn = mouseOver(saveBtnX, saveBtnY, saveBtnX+saveBtnW, saveBtnY+saveBtnH);
+    if (mouseOverSaveBtn) {
+      fill(c_btnHover);
+    } else {
+      fill(c_btnFill);
+    }
+    rect(saveBtnX, saveBtnY, saveBtnW, saveBtnH, buttonRounding);
+    fill(c_btnText);
+    text("SAVE IMAGE", restartBtnX, restartBtnY, restartBtnW, restartBtnH);
+  } else if (s.equals("restart")) {
     mouseOverRestartBtn = mouseOver(restartBtnX, restartBtnY, restartBtnX+restartBtnW, restartBtnY+restartBtnH);
     if (mouseOverRestartBtn) {
       fill(c_btnHover);
